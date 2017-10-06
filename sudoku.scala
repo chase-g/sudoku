@@ -5,90 +5,103 @@ val widthIndex = 8
 val width = widthIndex + 1
 val firstRow = List(Random.shuffle(1 to width).toList)
 /*val testPuzzle = List(List(1,2,3,4,5,6,7,8,9), List(5,6,7,8,9,1,2,3,4) */
-
+/*val c = List(List(0,1,2,3,4,5,6,7,8,9),List(1,1,2,3,4,5,6,7,8,9),List(2,1,2,3,4,5,6,7,8,9),
+ * List(3,1,2,3,4,5,6,7,8,9),List(4,1,2,3,4,5,6,7,8,9),List(5,1,2,3,4,5,6,7,8,9),
+ * List(6,1,2,3,4,5,6,7,8,9),List(7,1,2,3,4,5,6,7,8,9),List(8,1,2,3,4,5,6,7,8,9),
+ * List(9,1,2,3,4,5,6,7,8,9))*/
 //Use to create list of existing column values
-def getColumn(index: Int, puzzle: List[List[Int]]) = { 
+def getColumn(index: Int, puzzle: List[List[Int]]): List[Int] = { 
     val column = for(outer <- puzzle) yield {
       outer(index)
     }
     column
   }
 //Use to create list of existing 3 x 3 group values
-def getGroup(indexOut: Int, indexIn: Int, puzzle: List[List[Int]]) = {
-  val groupX = {
-    if(indexOut < 3) 3
-    else if(indexOut < 6) 6
-    else 9
+def getGroup(indexX: Int, indexY: Int, puzzle: List[List[Int]]): List[Int] = {
+  println(puzzle(indexX))
+  println(puzzle(indexX)(indexY))
+  val groupX = { //determining row coordinate
+    if(indexX <= 2) 2
+    else if(indexX <= 5) 5
+    else 8
   }
-  val groupY = {
-    if(indexIn < 3) 3
-    else if(indexIn < 6) 6
-    else 9
+  val groupY = { //determining column coordinate
+    if(indexY <= 2) 2
+    else if(indexY <= 5) 5
+    else 8
   }
-    val group = for(outer <- puzzle if puzzle.indexOf(outer) < groupX && puzzle.indexOf(outer) > groupX - 4; 
-    inner <- outer if outer.indexOf(inner) < groupY && outer.indexOf(inner) > groupY - 4) yield inner
-  println(group)
+    val group = for(
+        outer <- puzzle if puzzle.indexOf(outer) <= groupX && puzzle.indexOf(outer) > groupX - 4; 
+        inner <- outer if outer.indexOf(inner) <= groupY && outer.indexOf(inner) > groupY - 4) 
+          yield inner
+    group
 }
 //Use to check potential new value against existing column values and then produce unique value
-def nextValue(available: List[Int], indexOut: Int, indexIn: Int, puzzle: List[List[Int]]): Int = {
+def nextValue(available: List[Int], indexX: Int, indexY: Int, puzzle: List[List[Int]]): Int = {
   if(!available.isEmpty){
   val nextItem = Random.shuffle(available)
-  println("Available nums: " + nextItem)
-  val column = getColumn(indexOut, puzzle)
-  val group = getGroup(indexOut, indexIn, puzzle)
+  val column = getColumn(indexX, puzzle)
+  val group = getGroup(indexX, indexY, puzzle)
+  println("Available " + available)
   println("Column " + column)
   println("Group " + group)
-    if (!column.contains(nextItem(0)) && !group.contains(nextItem(0)) {
+  println("Considering " + nextItem(0))
+    if (!column.contains(nextItem(0)) && !group.contains(nextItem(0))) {
      // println("Using: " + nextItem(0))
       return nextItem(0)
     } else if(nextItem.length == 0) {
       return -1
     }
       else {
-      nextValue(nextItem.drop(1), indexOut, indexIn, puzzle)
+      nextValue(nextItem.drop(1), indexX, indexY, puzzle)
   }
  } else return -1
 }
+
 //test
 //nextValue(available = List(2,3,1,4), index = 1, puzzle = List(List(1,2,3,4),List(2,4,1,3)))
 
 //Create row of values which do not conflict with existing columns
-def createRow(current: List[Int], nextNum: Int, puzzle: List[List[Int]]): List[Int] = {
-  //println("Stack: " + stack)
- // println("Current list: " + current)
+def createRow(current: List[Int], nextNum: Int, indexY: Int, puzzle: List[List[Int]]): List[Int] = {
+  //prepend next number to the current list of row values
   val row: List[Int] = nextNum :: current
-  //println("Applying num: " + row)
-  //println(row)
   //if row is full, end and return row
   if(row.length == width) {
-    val across = row
-    println(across)
-    return across 
+    println(row)
+    return row
     }
   //if not full, continue adding values to row
   else { 
     //Get next value from a list which has previously used numbers from the row filtered out
-    val nextInt = nextValue((1 to width).toList.filter(x => !row.contains(x)), widthIndex - row.length, indexIn + 1, puzzle)
+    val nextInt = nextValue(
+        (1 to width).toList.filter(x => !row.contains(x)), //available
+        (widthIndex - row.length), //indexX
+        indexY, //indexY
+        puzzle) //puzzle
     //if nextInt is above 0 (i.e. did not have conflict) then add it to row recursively and continue cycle
     if(nextInt > 0) {
       println("Plan A")
-        createRow(row, nextInt, puzzle)
+        createRow(row, nextNum, indexY, puzzle)
     }  
     //if there is a conflict (-1 returned) then restart the row (later change this to backtracking one until repaired)
     else {
       println("Plan B")
-      createRow(List(), nextValue((1 to width).toList, widthIndex, puzzle), puzzle)
+      createRow(List(), nextValue((1 to width).toList, widthIndex, 0, puzzle), indexY, puzzle)
     }
   }
 }
 //test
-createRow(List(), nextValue((1 to width).toList, widthIndex, testPuzzle), testPuzzle)
+createRow(List(), nextValue((1 to width).toList, widthIndex, testPuzzle), 0, testPuzzle)
 
 def createPuzzle(puzzle: List[List[Int]]): List[List[Int]] = {
-  if(puzzle.length == width) return puzzle
+  if(puzzle.length == width) return puzzle //base case, if puzzle has reached desired width
   else {
-    val nextPuzzle = createRow(List(), nextValue((1 to width).toList, widthIndex, puzzle), puzzle) :: puzzle
-    createPuzzle(nextPuzzle)
+    val nextPuzzle = createRow(
+        List(), //current
+        nextValue((1 to width).toList, widthIndex, puzzle.length - 1, puzzle), //nextNum
+        puzzle.length - 1, //indexY
+        puzzle) :: puzzle //puzzle arg & then prepend to current puzzle
+    createPuzzle(nextPuzzle) //recur 
   }
 }
 //createPuzzle(firstRow)
