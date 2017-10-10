@@ -5,10 +5,9 @@ val widthIndex = 8
 val width = widthIndex + 1
 val firstRow = List(Random.shuffle(1 to width).toList)
 /*val testPuzzle = List(List(1,2,3,4,5,6,7,8,9), List(5,6,7,8,9,1,2,3,4) */
-/*val c = List(List(0,1,2,3,4,5,6,7,8,9),List(1,1,2,3,4,5,6,7,8,9),List(2,1,2,3,4,5,6,7,8,9),
- * List(3,1,2,3,4,5,6,7,8,9),List(4,1,2,3,4,5,6,7,8,9),List(5,1,2,3,4,5,6,7,8,9),
- * List(6,1,2,3,4,5,6,7,8,9),List(7,1,2,3,4,5,6,7,8,9),List(8,1,2,3,4,5,6,7,8,9),
- * List(9,1,2,3,4,5,6,7,8,9))*/
+/*val c = List(List(0,2,3,4,5,6,7,8,9),List(1,2,3,4,5,6,7,8,9),List(2,2,3,4,5,6,7,8,9),
+ List(3,2,3,4,5,6,7,8,9),List(4,2,3,4,5,6,7,8,9),List(5,2,3,4,5,6,7,8,9),
+ List(6,2,3,4,5,6,7,8,9),List(7,2,3,4,5,6,7,8,9),List(8,2,3,4,5,6,7,8,9))*/
 //Use to create list of existing column values
 def getColumn(index: Int, puzzle: List[List[Int]]): List[Int] = { 
     val column = for(outer <- puzzle) yield {
@@ -18,24 +17,11 @@ def getColumn(index: Int, puzzle: List[List[Int]]): List[Int] = {
   }
 //Use to create list of existing 3 x 3 group values
 def getGroup(indexX: Int, indexY: Int, puzzle: List[List[Int]]): List[Int] = {
-  println(puzzle(indexX))
-  println(puzzle(indexX)(indexY))
-  val groupX = { //determining row coordinate
-    if(indexX <= 2) 2
-    else if(indexX <= 5) 5
-    else 8
-  }
-  val groupY = { //determining column coordinate
-    if(indexY <= 2) 2
-    else if(indexY <= 5) 5
-    else 8
-  }
-    val group = for(
-        outer <- puzzle if puzzle.indexOf(outer) <= groupX && puzzle.indexOf(outer) > groupX - 4; 
-        inner <- outer if outer.indexOf(inner) <= groupY && outer.indexOf(inner) > groupY - 4) 
-          yield inner
-    group
+  val xStart = indexX / 3 * 3
+  val yStart = indexY / 3 * 3
+  puzzle.slice(xStart, xStart + 3).map(row => row.slice(yStart, yStart + 3)).flatten
 }
+
 //Use to check potential new value against existing column values and then produce unique value
 def nextValue(available: List[Int], indexX: Int, indexY: Int, puzzle: List[List[Int]]): Int = {
   if(!available.isEmpty){
