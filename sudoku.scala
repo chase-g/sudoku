@@ -1,10 +1,12 @@
+
+val t0 = System.nanoTime()
 import scala.util.Random
 //randomly shuffle array of 1-9 or A-? to form first row
-
 val widthIndex = 8
 val width = widthIndex + 1
+val all = (1 to 9).toList
 val firstRow = List(Random.shuffle(1 to width).toList)
-/*val testPuzzle = List(List(1,2,3,4,5,6,7,8,9), List(5,6,7,8,9,1,2,3,4) */
+/*val test = List(List(1,2,3,4,5,6,7,8,9)) */
 /*val c = List(List(0,2,3,4,5,6,7,8,9),List(1,2,3,4,5,6,7,8,9),List(2,2,3,4,5,6,7,8,9),
  List(3,2,3,4,5,6,7,8,9),List(4,2,3,4,5,6,7,8,9),List(5,2,3,4,5,6,7,8,9),
  List(6,2,3,4,5,6,7,8,9),List(7,2,3,4,5,6,7,8,9),List(8,2,3,4,5,6,7,8,9))*/
@@ -16,21 +18,21 @@ def getColumn(index: Int, puzzle: List[List[Int]]): List[Int] = {
     column
   }
 //Use to create list of existing 3 x 3 group values
-def getGroup(indexX: Int, indexY: Int, puzzle: List[List[Int]]): List[Int] = {
-  val xStart = indexX / 3 * 3
-  val yStart = indexY / 3 * 3
+def getGroup(indexAcross: Int, indexDown: Int,  puzzle: List[List[Int]]): List[Int] = {
+  val xStart = indexDown / 3 * 3
+  val yStart = indexAcross / 3 * 3
   puzzle.slice(xStart, xStart + 3).map(row => row.slice(yStart, yStart + 3)).flatten
 }
 
 //Use to check potential new value against existing column values and then produce unique value
-def nextValue(available: List[Int], indexX: Int, indexY: Int, puzzle: List[List[Int]]): Int = {
+def nextValue(available: List[Int], indexAcross: Int, indexDown: Int,  puzzle: List[List[Int]]): Int = {
   if(!available.isEmpty){
   val nextItem = Random.shuffle(available)
-  val column = getColumn(indexX, puzzle)
-  val group = getGroup(indexX, indexY, puzzle)
+  val column = getColumn(indexAcross, puzzle) //change from indexDown
+  val group = getGroup(indexAcross, indexDown, puzzle)
   println("Available " + available)
-  println("Column " + column)
-  println("Group " + group)
+  println("Column: " + column)
+  println("Group: " + group)
   println("Considering " + nextItem(0))
     if (!column.contains(nextItem(0)) && !group.contains(nextItem(0))) {
      // println("Using: " + nextItem(0))
@@ -39,57 +41,60 @@ def nextValue(available: List[Int], indexX: Int, indexY: Int, puzzle: List[List[
       return -1
     }
       else {
-      nextValue(nextItem.drop(1), indexX, indexY, puzzle)
+      nextValue(nextItem.drop(1), indexAcross, indexDown, puzzle)
   }
  } else return -1
 }
 
-//test
-//nextValue(available = List(2,3,1,4), index = 1, puzzle = List(List(1,2,3,4),List(2,4,1,3)))
 
-//Create row of values which do not conflict with existing columns
-def createRow(current: List[Int], nextNum: Int, indexY: Int, puzzle: List[List[Int]]): List[Int] = {
-  //prepend next number to the current list of row values
-  val row: List[Int] = nextNum :: current
-  //if row is full, end and return row
-  if(row.length == width) {
-    println(row)
-    return row
+def createRow(currentRow: List[Int], puzzle: List[List[Int]], counter: Int): List[Int] = {
+  println("Counter: " + counter)
+  if(currentRow.length != width){
+    val avail = all.filter(x => !currentRow.contains(x)) //set available values
+ //nextValue(available, across, down, puzzle)
+    val nextNum = nextValue(avail, currentRow.length, puzzle.length, puzzle) //get nextValue with available values, across at current puzzle index length, down at index, on puzzle arg
+ //changed from puzzle.length - 1
+    if(nextNum > 0){ //If nextNum is positive 
+   // println("Plan A")
+   // println("currentRow" + currentRow)
+   // println("avail: " + avail)
+   // println("nextNum: " + nextNum)
+      val backtrack = counter + 1
+      val runningRow = currentRow :+ nextNum//append it to curentRow
+      println("Row: " + runningRow)
+      createRow(runningRow, puzzle, backtrack) //call createRow recursively with value added to row
+    } else { //otherwise backtrack to prior value when calling createRow recursively
+    //  println("Plan B")
+      if(counter > 0){
+      val runningRow = currentRow.slice(0, currentRow.length - (counter / 2))
+      createRow(runningRow, puzzle, 0)
+      } else {
+        createRow(List(), puzzle, 0)
+      }
     }
-  //if not full, continue adding values to row
-  else { 
-    //Get next value from a list which has previously used numbers from the row filtered out
-    val nextInt = nextValue(
-        (1 to width).toList.filter(x => !row.contains(x)), //available
-        (widthIndex - row.length), //indexX
-        indexY, //indexY
-        puzzle) //puzzle
-    //if nextInt is above 0 (i.e. did not have conflict) then add it to row recursively and continue cycle
-    if(nextInt > 0) {
-      println("Plan A")
-        createRow(row, nextNum, indexY, puzzle)
-    }  
-    //if there is a conflict (-1 returned) then restart the row (later change this to backtracking one until repaired)
-    else {
-      println("Plan B")
-      createRow(List(), nextValue((1 to width).toList, widthIndex, 0, puzzle), indexY, puzzle)
-    }
-  }
+  } else return currentRow
 }
-//test
-createRow(List(), nextValue((1 to width).toList, widthIndex, testPuzzle), 0, testPuzzle)
+//
+val test = List(List(1,2,3,4,5,6,7,8,9))
+createRow(List(), test, 0)
+val t1 = System.nanoTime() 
+println("Elapsed time: " + (t1 - t0) + " nanoseconds")
 
-def createPuzzle(puzzle: List[List[Int]]): List[List[Int]] = {
-  if(puzzle.length == width) return puzzle //base case, if puzzle has reached desired width
+
+
+def createPuzzle(sudoku: List[List[Int]]): List[List[Int]] = {
+  println(sudoku)
+  if(sudoku.length == width) return sudoku 
   else {
-    val nextPuzzle = createRow(
-        List(), //current
-        nextValue((1 to width).toList, widthIndex, puzzle.length - 1, puzzle), //nextNum
-        puzzle.length - 1, //indexY
-        puzzle) :: puzzle //puzzle arg & then prepend to current puzzle
-    createPuzzle(nextPuzzle) //recur 
+    val nextRow = createRow(List(), sudoku, 0)
+    val runningPuzzle = sudoku :+ nextRow
+    createPuzzle(runningPuzzle)
   }
 }
+
+
+
+
 //createPuzzle(firstRow)
 //print puzzle
 def printPuzzle(start: List[List[Int]]): Unit = {
