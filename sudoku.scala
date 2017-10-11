@@ -93,7 +93,7 @@ def printPuzzle(start: List[List[Int]]): Unit = {
   val puzzle = createPuzzle(start)
   println("-----" * 9)
   for(i <- puzzle; n <- i){
-    if(i.indexOf(n) == i.length - 1 && (puzzle.indexOf(i) == 3 || puzzle.indexOf(i) == 6)){
+    if(i.indexOf(n) == i.length - 1 && (puzzle.indexOf(i) == 2 || puzzle.indexOf(i) == 5)){
       print(" | ")
       print(n.toString)
       print(" | ")
