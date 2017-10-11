@@ -1,16 +1,14 @@
-
-val t0 = System.nanoTime()
+object sudoku {
+  def main(arg: Array[String]): Unit = {
+    val t0 = System.nanoTime()
 import scala.util.Random
 //randomly shuffle array of 1-9 or A-? to form first row
 val widthIndex = 8
 val width = widthIndex + 1
 val all = (1 to 9).toList
 val firstRow = List(Random.shuffle(1 to width).toList)
-/*val test = List(List(1,2,3,4,5,6,7,8,9)) */
-/*val c = List(List(0,2,3,4,5,6,7,8,9),List(1,2,3,4,5,6,7,8,9),List(2,2,3,4,5,6,7,8,9),
- List(3,2,3,4,5,6,7,8,9),List(4,2,3,4,5,6,7,8,9),List(5,2,3,4,5,6,7,8,9),
- List(6,2,3,4,5,6,7,8,9),List(7,2,3,4,5,6,7,8,9),List(8,2,3,4,5,6,7,8,9))*/
-//Use to create list of existing column values
+//val test = List(List(1,2,3,4,5,6,7,8,9))
+
 def getColumn(index: Int, puzzle: List[List[Int]]): List[Int] = { 
     val column = for(outer <- puzzle) yield {
       outer(index)
@@ -30,10 +28,10 @@ def nextValue(available: List[Int], indexAcross: Int, indexDown: Int,  puzzle: L
   val nextItem = Random.shuffle(available)
   val column = getColumn(indexAcross, puzzle) //change from indexDown
   val group = getGroup(indexAcross, indexDown, puzzle)
-  println("Available " + available)
-  println("Column: " + column)
-  println("Group: " + group)
-  println("Considering " + nextItem(0))
+  //println("Available " + available)
+  //println("Column: " + column)
+ // println("Group: " + group)
+ // println("Considering " + nextItem(0))
     if (!column.contains(nextItem(0)) && !group.contains(nextItem(0))) {
      // println("Using: " + nextItem(0))
       return nextItem(0)
@@ -48,7 +46,7 @@ def nextValue(available: List[Int], indexAcross: Int, indexDown: Int,  puzzle: L
 
 
 def createRow(currentRow: List[Int], puzzle: List[List[Int]], counter: Int): List[Int] = {
-  println("Counter: " + counter)
+  //println("Counter: " + counter)
   if(currentRow.length != width){
     val avail = all.filter(x => !currentRow.contains(x)) //set available values
  //nextValue(available, across, down, puzzle)
@@ -61,7 +59,7 @@ def createRow(currentRow: List[Int], puzzle: List[List[Int]], counter: Int): Lis
    // println("nextNum: " + nextNum)
       val backtrack = counter + 1
       val runningRow = currentRow :+ nextNum//append it to curentRow
-      println("Row: " + runningRow)
+      //println("Row: " + runningRow)
       createRow(runningRow, puzzle, backtrack) //call createRow recursively with value added to row
     } else { //otherwise backtrack to prior value when calling createRow recursively
     //  println("Plan B")
@@ -74,16 +72,15 @@ def createRow(currentRow: List[Int], puzzle: List[List[Int]], counter: Int): Lis
     }
   } else return currentRow
 }
-//
-val test = List(List(1,2,3,4,5,6,7,8,9))
-createRow(List(), test, 0)
+
+/*createRow(List(), test, 0)
 val t1 = System.nanoTime() 
 println("Elapsed time: " + (t1 - t0) + " nanoseconds")
-
+*/
 
 
 def createPuzzle(sudoku: List[List[Int]]): List[List[Int]] = {
-  println(sudoku)
+ // println(sudoku)
   if(sudoku.length == width) return sudoku 
   else {
     val nextRow = createRow(List(), sudoku, 0)
@@ -92,16 +89,19 @@ def createPuzzle(sudoku: List[List[Int]]): List[List[Int]] = {
   }
 }
 
-
-
-
-//createPuzzle(firstRow)
-//print puzzle
 def printPuzzle(start: List[List[Int]]): Unit = {
   val puzzle = createPuzzle(start)
   println("-----" * 9)
   for(i <- puzzle; n <- i){
-    if(i.indexOf(n) == i.length - 1){
+    if(i.indexOf(n) == i.length - 1 && (puzzle.indexOf(i) == 3 || puzzle.indexOf(i) == 6)){
+      print(" | ")
+      print(n.toString)
+      print(" | ")
+      print("\n")
+      println("-----" * 9)
+      println("-----" * 9)
+    }
+    else if(i.indexOf(n) == i.length - 1){
       print(" | ")
       print(n.toString)
       print(" | ")
@@ -119,14 +119,8 @@ def printPuzzle(start: List[List[Int]]): Unit = {
     }
   }
 }
-//
-//test
-printPuzzle(firstRow)
-//loop to form subsequent rows so that each does not conflict with all above rows
-  //1--store available numbers in an array
-  //2--store numbers in a placeholder value which filters out the numbers which already 
-    //...exist in the same column, then select randomly from this array
-  //3--loop to the next row and perform the same operation until the chart is complete
-  //4--randomly move through the puzzle recursively and remove values
-	//5--check whether more than one value could be placed in each section
-    //...and backtrack if there could be more than one value 
+
+val sudoku = createPuzzle(firstRow)
+printPuzzle(sudoku) 
+  }
+}
