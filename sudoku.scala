@@ -79,9 +79,9 @@ println("Elapsed time: " + (t1 - t0) + " nanoseconds")
 */
 
 
-def createPuzzle(sudoku: List[List[Int]]): List[List[Int]] = {
+def createPuzzle(sudoku: List[List[Int]]): List[List[String]] = {
  // println(sudoku)
-  if(sudoku.length == width) return sudoku 
+  if(sudoku.length == width) return sudoku.map(_.map(_.toString))
   else {
     val nextRow = createRow(List(), sudoku, 0)
     val runningPuzzle = sudoku :+ nextRow
@@ -89,38 +89,55 @@ def createPuzzle(sudoku: List[List[Int]]): List[List[Int]] = {
   }
 }
 
-def printPuzzle(start: List[List[Int]]): Unit = {
-  val puzzle = createPuzzle(start)
+def createGaps(currentPuzzle: List[List[String]], indexAcross: Int = 0, indexDown: Int = 0): List[List[String]] = {
+  val r = scala.util.Random
+  val choice = r.nextInt(9)
+  if(indexDown == widthIndex && indexAcross == widthIndex) return currentPuzzle
+  else if (choice > 5){
+    val gappedRow = currentPuzzle(indexDown).updated(indexAcross, " ")
+    val gappedPuzzle = currentPuzzle.updated(indexDown, gappedRow)
+    if(indexAcross != widthIndex) createGaps(gappedPuzzle, indexAcross + 1, indexDown)
+    else createGaps(gappedPuzzle, 0, indexDown + 1)
+    } 
+  else{
+          if(indexAcross != widthIndex) createGaps(currentPuzzle, indexAcross + 1, indexDown)
+          else createGaps(currentPuzzle, 0, indexDown + 1)
+  }
+}
+
+def printPuzzle(puzzle: List[List[String]]): Unit = {
+  //val puzzle = createPuzzle(start)
   println("-----" * 9)
-  for(i <- puzzle; n <- i){
-    if(i.indexOf(n) == i.length - 1 && (puzzle.indexOf(i) == 2 || puzzle.indexOf(i) == 5)){
+  for(i <- 0 until puzzle.length; n <- 0 until puzzle(0).length){
+    if(n == puzzle.length - 1 && (i == 2 || i == 5)){
+      print(" | ")     
+      print(puzzle(i)(n))
       print(" | ")
-      print(n.toString)
-      print(" | ")
-      print("\n")
+      println("")
       println("-----" * 9)
       println("-----" * 9)
     }
-    else if(i.indexOf(n) == i.length - 1){
+    else if(n == widthIndex){
       print(" | ")
-      print(n.toString)
+      print(puzzle(i)(n))
       print(" | ")
-      print("\n")
+      println("")
       println("-----" * 9)
     }
-    else if(i.indexOf(n) == 3 || i.indexOf(n) == 6) {
+    else if(n == 3 || n == 6) {
       print(" || ")
-      print(n.toString)
+      print(puzzle(i)(n))
     }
     else{
     print(" | ")
-    print(n.toString)
+    print(puzzle(i)(n))
     print("")
     }
   }
 }
 
-val sudoku = createPuzzle(firstRow)
+val solution = createPuzzle(firstRow)
+val sudoku = createGaps(solution)
 printPuzzle(sudoku) 
   }
 }
