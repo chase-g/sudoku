@@ -1,6 +1,9 @@
 import scala.swing._
+import scala.swing.event._
 import java.awt.Dimension
 import java.awt.Color._
+import javax.swing.border._
+import java.awt.Font._
 
 class UI extends MainFrame {
   val t0 = System.nanoTime()
@@ -150,6 +153,10 @@ printPuzzle(sudoku)
   
   val buttonCalc = new Button("Calculate")
   val btnSize = new Dimension(50, 50)
+  //val blackline = BorderFactory.createLineBorder(Color.black)
+  val emerald: Color = new Color(0, 153, 51)
+  val burntOrange: Color = new Color(230, 115, 0)
+  val myFont: Font = new Font("serif", BOLD, 18);
   
 contents = new BoxPanel(Orientation.Vertical) {
       for(i <- 0 until sudoku.length) {
@@ -160,10 +167,13 @@ contents = new BoxPanel(Orientation.Vertical) {
                  minimumSize = btnSize
                  maximumSize = btnSize
                  preferredSize = btnSize
+                 font = myFont
+                // border = blackline
+                // this.setBorder(blackline)
                  if((n > 2 && n < 6 && i < 3) || (n > 2 && n < 6 && i > 5)){
-                 foreground = java.awt.Color.green
+                 foreground = emerald
                  } else if((i > 2 && i < 6 &&  n < 3) || (i > 2 && i < 6 && n > 5)) {
-                   foreground = java.awt.Color.orange
+                   foreground = burntOrange
                  }
                  else {
                    foreground = java.awt.Color.black
