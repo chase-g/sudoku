@@ -13,7 +13,6 @@ val widthIndex = 8
 val width = widthIndex + 1
 val all = (1 to 9).toList
 val firstRow = List(Random.shuffle(1 to width).toList)
-//val test = List(List(1,2,3,4,5,6,7,8,9))
 
 def getColumn(index: Int, puzzle: List[List[Int]]): List[Int] = { 
     val column = for(outer <- puzzle) yield {
@@ -34,12 +33,7 @@ def nextValue(available: List[Int], indexAcross: Int, indexDown: Int,  puzzle: L
   val nextItem = Random.shuffle(available)
   val column = getColumn(indexAcross, puzzle) //change from indexDown
   val group = getGroup(indexAcross, indexDown, puzzle)
-  //println("Available " + available)
-  //println("Column: " + column)
- // println("Group: " + group)
- // println("Considering " + nextItem(0))
     if (!column.contains(nextItem(0)) && !group.contains(nextItem(0))) {
-     // println("Using: " + nextItem(0))
       return nextItem(0)
     } else if(nextItem.length == 0) {
       return -1
@@ -52,23 +46,16 @@ def nextValue(available: List[Int], indexAcross: Int, indexDown: Int,  puzzle: L
 
 
 def createRow(currentRow: List[Int], puzzle: List[List[Int]], counter: Int): List[Int] = {
-  //println("Counter: " + counter)
   if(currentRow.length != width){
     val avail = all.filter(x => !currentRow.contains(x)) //set available values
  //nextValue(available, across, down, puzzle)
     val nextNum = nextValue(avail, currentRow.length, puzzle.length, puzzle) //get nextValue with available values, across at current puzzle index length, down at index, on puzzle arg
  //changed from puzzle.length - 1
     if(nextNum > 0){ //If nextNum is positive 
-   // println("Plan A")
-   // println("currentRow" + currentRow)
-   // println("avail: " + avail)
-   // println("nextNum: " + nextNum)
       val backtrack = counter + 1
       val runningRow = currentRow :+ nextNum//append it to curentRow
-      //println("Row: " + runningRow)
       createRow(runningRow, puzzle, backtrack) //call createRow recursively with value added to row
     } else { //otherwise backtrack to prior value when calling createRow recursively
-    //  println("Plan B")
       if(counter > 0){
       val runningRow = currentRow.slice(0, currentRow.length - (counter / 2))
       createRow(runningRow, puzzle, 0)
@@ -78,12 +65,6 @@ def createRow(currentRow: List[Int], puzzle: List[List[Int]], counter: Int): Lis
     }
   } else return currentRow
 }
-
-/*createRow(List(), test, 0)
-val t1 = System.nanoTime() 
-println("Elapsed time: " + (t1 - t0) + " nanoseconds")
-*/
-
 
 def createPuzzle(sudoku: List[List[Int]]): List[List[String]] = {
  // println(sudoku)
@@ -151,14 +132,13 @@ printPuzzle(sudoku)
   }
   title = "Sudoku"
   
-  val buttonCalc = new Button("Calculate")
   val btnSize = new Dimension(50, 50)
-  //val blackline = BorderFactory.createLineBorder(Color.black)
   val emerald: Color = new Color(0, 153, 51)
   val burntOrange: Color = new Color(230, 115, 0)
   val myFont: Font = new Font("serif", BOLD, 18);
   
 contents = new BoxPanel(Orientation.Vertical) {
+   contents += new Label("Chase's Sudoku Generator")
       for(i <- 0 until sudoku.length) {
             contents += new BoxPanel(Orientation.Horizontal){
             for(n <- 0 until sudoku(i).length) {
@@ -168,8 +148,6 @@ contents = new BoxPanel(Orientation.Vertical) {
                  maximumSize = btnSize
                  preferredSize = btnSize
                  font = myFont
-                // border = blackline
-                // this.setBorder(blackline)
                  if((n > 2 && n < 6 && i < 3) || (n > 2 && n < 6 && i > 5)){
                  foreground = emerald
                  } else if((i > 2 && i < 6 &&  n < 3) || (i > 2 && i < 6 && n > 5)) {
@@ -179,23 +157,45 @@ contents = new BoxPanel(Orientation.Vertical) {
                    foreground = java.awt.Color.black
                  }
               }
-
+              if(n == 2 || n == 5) contents += Swing.HStrut(15)
             }
+              
           } 
       }
+            
+          if(i == 2 || i == 5) contents += Swing.VStrut(15)
     }
+      contents += Swing.VStrut(30)
+      contents += new Label("Options:")
+      contents += new BoxPanel(Orientation.Horizontal){
+        for(t <- 1 to 9){
+        contents += new BoxPanel(Orientation.Horizontal){
+        contents += Swing.HStrut(3)
+        contents += new Button(t.toString){
+          minimumSize = btnSize
+          maximumSize = btnSize
+          preferredSize = btnSize
+          font = myFont
+        }
+      }
+    }
+      }
    
-    for (e <- contents)
+    for (e <- contents){
       e.xLayoutAlignment = 0.0
-      border = Swing.EmptyBorder(20, 20, 20, 20)
+      border = Swing.EmptyBorder(30, 30, 30, 30)
+    }
+   // contents += new BoxPanel(Orientation.Horizontal){
+     // contents += Swing.HStrut(30)
+      
   }
 
   /*listenTo(buttonCalc)
   
-  reactions += {/*
+  reactions += {
     case ButtonClicked(buttonCalc) => {
       
-    }*/
+    }
   }*/
 }
 
