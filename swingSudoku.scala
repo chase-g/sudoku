@@ -1,6 +1,6 @@
 import scala.swing._
-import scala.swing.event._
-
+import java.awt.Dimension
+import java.awt.Color._
 
 class UI extends MainFrame {
   val t0 = System.nanoTime()
@@ -149,84 +149,44 @@ printPuzzle(sudoku)
   title = "Sudoku"
   
   val buttonCalc = new Button("Calculate")
+  val btnSize = new Dimension(50, 50)
+  
+contents = new BoxPanel(Orientation.Vertical) {
+      for(i <- 0 until sudoku.length) {
+            contents += new BoxPanel(Orientation.Horizontal){
+            for(n <- 0 until sudoku(i).length) {
+              contents += new BoxPanel(Orientation.Horizontal){
+              contents += new Button(sudoku(i)(n)) {
+                 minimumSize = btnSize
+                 maximumSize = btnSize
+                 preferredSize = btnSize
+                 if((n > 2 && n < 6 && i < 3) || (n > 2 && n < 6 && i > 5)){
+                 foreground = java.awt.Color.green
+                 } else if((i > 2 && i < 6 &&  n < 3) || (i > 2 && i < 6 && n > 5)) {
+                   foreground = java.awt.Color.orange
+                 }
+                 else {
+                   foreground = java.awt.Color.black
+                 }
+              }
 
-
-  contents = new BoxPanel(Orientation.Vertical) {
-    contents += new BoxPanel(Orientation.Horizontal) {
-      for(i <- sudoku(0)) {
-            contents += new BoxPanel(Orientation.Horizontal){
-            contents += new Button(i)
+            }
           } 
       }
     }
-    contents += new BoxPanel(Orientation.Horizontal) {
-      for(i <- sudoku(1)) {
-            contents += new BoxPanel(Orientation.Horizontal){
-            contents += new Button(i)
-          } 
-      }
-    }
-    contents += new BoxPanel(Orientation.Horizontal) {
-      for(i <- sudoku(2)) {
-            contents += new BoxPanel(Orientation.Horizontal){
-            contents += new Button(i)
-          } 
-      }
-    }
-    contents += new BoxPanel(Orientation.Horizontal) {
-      for(i <- sudoku(3)) {
-            contents += new BoxPanel(Orientation.Horizontal){
-            contents += new Button(i)
-          } 
-      }
-    }
-    contents += new BoxPanel(Orientation.Horizontal) {
-      for(i <- sudoku(4)) {
-            contents += new BoxPanel(Orientation.Horizontal){
-            contents += new Button(i)
-          } 
-      }
-    }
-    contents += new BoxPanel(Orientation.Horizontal) {
-      for(i <- sudoku(5)) {
-            contents += new BoxPanel(Orientation.Horizontal){
-            contents += new Button(i)
-          } 
-      }
-    }
-    contents += new BoxPanel(Orientation.Horizontal) {
-      for(i <- sudoku(6)) {
-            contents += new BoxPanel(Orientation.Horizontal){
-            contents += new Button(i)
-          } 
-      }
-    }
-    contents += new BoxPanel(Orientation.Horizontal) {
-      for(i <- sudoku(7)) {
-            contents += new BoxPanel(Orientation.Horizontal){
-            contents += new Button(i)
-          } 
-      }
-    }
-    contents += new BoxPanel(Orientation.Horizontal) {
-      for(i <- sudoku(8)) {
-            contents += new BoxPanel(Orientation.Horizontal){
-            contents += new Button(i)
-          } 
-      }
-    }
+   
     for (e <- contents)
       e.xLayoutAlignment = 0.0
       border = Swing.EmptyBorder(20, 20, 20, 20)
   }
 
-  listenTo(buttonCalc)
+  /*listenTo(buttonCalc)
   
-  reactions += {
+  reactions += {/*
     case ButtonClicked(buttonCalc) => {
       
-    }
-  }
+    }*/
+  }*/
 }
 
 
