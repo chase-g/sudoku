@@ -6,13 +6,13 @@ import javax.swing.border._
 import java.awt.Font._
 
 class UI extends MainFrame {
-  val t0 = System.nanoTime()
+
 import scala.util.Random
 //randomly shuffle array of 1-9 or A-? to form first row
-val widthIndex = 8
-val width = widthIndex + 1
-val all = (1 to 9).toList
-val firstRow = List(Random.shuffle(1 to width).toList)
+private val widthIndex = 8
+private val width = widthIndex + 1
+private val all = (1 to 9).toList
+private val firstRow = List(Random.shuffle(1 to width).toList)
 
 def getColumn(index: Int, puzzle: List[List[Int]]): List[Int] = { 
     val column = for(outer <- puzzle) yield {
@@ -123,8 +123,8 @@ def printPuzzle(puzzle: List[List[String]]): Unit = {
   }
 }
 
-val solution = createPuzzle(firstRow)
-val sudoku = createGaps(solution)
+private val solution = createPuzzle(firstRow)
+private val sudoku = createGaps(solution)
 printPuzzle(sudoku) 
 
   def restrictHeight(s: Component) {
@@ -132,18 +132,30 @@ printPuzzle(sudoku)
   }
   title = "Sudoku"
   
-  val btnSize = new Dimension(50, 50)
-  val emerald: Color = new Color(0, 153, 51)
-  val burntOrange: Color = new Color(230, 115, 0)
-  val myFont: Font = new Font("serif", BOLD, 18);
+  private val btnSize = new Dimension(50, 50)
+  private val emerald: Color = new Color(0, 153, 51)
+  private val burntOrange: Color = new Color(230, 115, 0)
+  private val oceanBlue: Color = new Color(0, 115, 230)
+  private val myFont: Font = new Font("serif", BOLD, 18);
+  private var picked = ""
   
 contents = new BoxPanel(Orientation.Vertical) {
-   contents += new Label("Chase's Sudoku Generator")
+   contents += new Label("Chase's Sudoku Generator"){
+     font = new Font("serif", BOLD, 24);
+   }
+   contents += Swing.VStrut(30)
       for(i <- 0 until sudoku.length) {
             contents += new BoxPanel(Orientation.Horizontal){
             for(n <- 0 until sudoku(i).length) {
               contents += new BoxPanel(Orientation.Horizontal){
               contents += new Button(sudoku(i)(n)) {
+                 reactions += {
+                   case ButtonClicked(_) => {
+                     if(picked == solution(i)(n)) 
+                     text = picked
+                     foreground = oceanBlue
+                   }
+                 }
                  minimumSize = btnSize
                  maximumSize = btnSize
                  preferredSize = btnSize
@@ -165,6 +177,7 @@ contents = new BoxPanel(Orientation.Vertical) {
             
           if(i == 2 || i == 5) contents += Swing.VStrut(15)
     }
+      
       contents += Swing.VStrut(30)
       contents += new Label("Options:")
       contents += new BoxPanel(Orientation.Horizontal){
@@ -176,6 +189,11 @@ contents = new BoxPanel(Orientation.Vertical) {
           maximumSize = btnSize
           preferredSize = btnSize
           font = myFont
+          reactions += {
+            case ButtonClicked(_) => {
+              picked = t.toString
+            }
+          }
         }
       }
     }
@@ -185,18 +203,8 @@ contents = new BoxPanel(Orientation.Vertical) {
       e.xLayoutAlignment = 0.0
       border = Swing.EmptyBorder(30, 30, 30, 30)
     }
-   // contents += new BoxPanel(Orientation.Horizontal){
-     // contents += Swing.HStrut(30)
       
   }
-
-  /*listenTo(buttonCalc)
-  
-  reactions += {
-    case ButtonClicked(buttonCalc) => {
-      
-    }
-  }*/
 }
 
 
