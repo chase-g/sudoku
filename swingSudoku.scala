@@ -177,6 +177,35 @@ contents = new BoxPanel(Orientation.Vertical) {
             
           if(i == 2 || i == 5) contents += Swing.VStrut(15)
     }
+   //selected
+      /*
+      contents += new BoxPanel(Orientation.Horizontal){
+      contents += Swing.VStrut(30)
+      contents += new Label("Selected: " + picked) {
+        listenTo(Button)
+        reactions += {
+          case ButtonClicked(_) => {
+            text = "Selected: " + picked
+          }
+        }
+      }
+      }*/
+        
+      //options class
+      class Option (val num: String) extends Button {
+        private val btnSize = new Dimension(50, 50)
+        private val myFont: Font = new Font("serif", BOLD, 18);
+        text = num
+        minimumSize = btnSize
+        maximumSize = btnSize
+        preferredSize = btnSize
+        font = myFont
+        reactions += {
+            case ButtonClicked(_) => {
+              picked = num.toString
+            }
+          }
+      }
       
       contents += Swing.VStrut(30)
       contents += new Label("Options:")
@@ -184,17 +213,7 @@ contents = new BoxPanel(Orientation.Vertical) {
         for(t <- 1 to 9){
         contents += new BoxPanel(Orientation.Horizontal){
         contents += Swing.HStrut(3)
-        contents += new Button(t.toString){
-          minimumSize = btnSize
-          maximumSize = btnSize
-          preferredSize = btnSize
-          font = myFont
-          reactions += {
-            case ButtonClicked(_) => {
-              picked = t.toString
-            }
-          }
-        }
+        contents += new Option(t.toString)
       }
     }
       }
